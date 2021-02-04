@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-enum InputType {
+enum InputType { //types of inputs
 	OPERATOR,
 	DIGIT,
 	OPENINGBRACKET,
@@ -9,13 +9,13 @@ enum InputType {
 }
 
 public class CalculatorLogic {
-	String inputExpression = "";
+	String inputExpression = ""; //string that stores the expression that the user inputs
 	
 	public void buttonPress(char value) {
-		inputExpression += value;
+		inputExpression += value; //concatenate the digit with the expression
 	}
 	
-	public InputType type(char value) {
+	public InputType type(char value) { //determine the type of character
 		if (Character.isDigit(value) || value == '.') {
 			return InputType.DIGIT;
 		} else if (value == '(') {
@@ -30,32 +30,32 @@ public class CalculatorLogic {
 	}
 	
 	public double evaluate() {		
-		inputExpression += " ";
+		inputExpression += " "; //add a space to the end of the input expression to prevent an outofbounds error
 		
-		ArrayList<Double> values = new ArrayList<Double>(3);
-		ArrayList<Character> operators = new ArrayList<Character>(1);
-		ArrayList<Integer> operatorPriorities = new ArrayList<Integer>(1);
+		ArrayList<Double> values = new ArrayList<Double>(3); //store all the numbers
+		ArrayList<Character> operators = new ArrayList<Character>(1); //store the operators
+		ArrayList<Integer> operatorPriorities = new ArrayList<Integer>(1); //parallel arrayList that stores the priority of each operator (order of operations)
 		
-		String tempValue = "";
-		int bracketLevel = 0;
-		int maxPriority = 0;
+		String tempValue = ""; //temporary value used for concatenating the digits of numbers together
+		int bracketLevel = 0; //amount of brackets used for determining priorities (order of operations)
+		int maxPriority = 0; //highest priority in the whole expression
 		
-		for (int i = 0; i < inputExpression.length(); i++) {
-			char digitOrLetter = inputExpression.charAt(i);
+		for (int i = 0; i < inputExpression.length(); i++) { //loop through the whole expression
+			char digitOrLetter = inputExpression.charAt(i); //extract the individual character
 			
 			switch (type(digitOrLetter)) {
 			case DIGIT:
-				tempValue += digitOrLetter;
+				tempValue += digitOrLetter; //add the digit to the temporary value
 				
-				if (type(inputExpression.charAt(i+1)) != InputType.DIGIT) {
+				if (type(inputExpression.charAt(i+1)) != InputType.DIGIT) { //if the next value isn't a digit, add the number to the arrayList
 					values.add(Double.parseDouble(tempValue));
 					tempValue = "";
 				}
 				break;
 			case OPERATOR:
-				operators.add(digitOrLetter);
+				operators.add(digitOrLetter); //add the operator to the arrayList
 				
-				if (digitOrLetter == '*' || digitOrLetter == '/') {
+				if (digitOrLetter == '*' || digitOrLetter == '/') { //add the priority of the operator to the parallel arrayList
 					operatorPriorities.add(bracketLevel * 3 + 1);
 					
 					if (bracketLevel * 3 + 1 > maxPriority) {
@@ -80,19 +80,19 @@ public class CalculatorLogic {
 			}	
 		}
 		
-		for (int i = maxPriority; i >= 0; i--) {
+		for (int i = maxPriority; i >= 0; i--) { //iterate through the expression in order of priority
 			boolean loopedThrough = false;
 			
-			while (loopedThrough == false) {
+			while (loopedThrough == false) { //iterate through all the operators of a certain priority
 				try {
-					int index = operatorPriorities.indexOf(i);
+					int index = operatorPriorities.indexOf(i); //determine the index of the operator being processed
 					
 					double value1 = values.get(index);
 					double value2 = values.get(index + 1);
 					
-					double simpleValue;
+					double simpleValue; //temporary value to store new value
 					
-					switch (operators.get(index)) {
+					switch (operators.get(index)) { //determine type of operator
 					case '+':
 						simpleValue = value1 + value2;
 						break;
