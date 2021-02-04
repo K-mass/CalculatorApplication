@@ -1,27 +1,24 @@
 import java.util.Scanner;
 
-public class Main {
-	static boolean checkValue(char input,char[] expected) {
-		for (int i = 0; i <= expected.length; i++) {
-			if (expected[i] == input) {
-				return true;
-			}
-		}
-		return false;
-	}
+public class Main{
 	
-	public static void main(String[] args) {
-		char[] type0 = {'+','-','*','/','^'};
-		char[] type1 = {0,1,2,3,4,5,6,7,8,9};
-		Scanner input = new Scanner(System.in); //create an object out of the scanner class
+	public static void main(String args[]) {
+		Scanner userInput = new Scanner(System.in);
+		
+		CalculatorLogic input = new CalculatorLogic();
+		
 		try {
-			System.out.println("Input number");
-			char userNum = input.nextLine().charAt(0);
-			if (checkValue(userNum, type0)) {
-				buttonPress(0,userNum);
+			while(0 == 0) {
+				char inputChar = userInput.nextLine().charAt(0);
+			
+				if (inputChar != '=') {
+					input.buttonPress(inputChar);
+				} else {
+					System.out.println(input.evaluate());
+				}
 			}
 		} finally {
-			input.close(); //close the scanner
+			userInput.close();
 		}
 	}
 }
