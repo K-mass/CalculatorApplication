@@ -34,7 +34,6 @@ public class CalculatorApp {
 		text.setBounds(10, 10, 298, 40);
 		
 		CalculatorApp inputter = new CalculatorApp();
-		CalculatorLogic remover = new CalculatorLogic();
 		
 		Button button1 = new Button(shell, SWT.NONE);
 		button1.addSelectionListener(new SelectionAdapter() {
@@ -129,7 +128,7 @@ public class CalculatorApp {
 		Button button10 = new Button(shell, SWT.NONE);
 		button10.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				remover.inputExpression = "";
+				inputter.press(button10.getText().charAt(0));
 			}
 		});
 		button10.setText(".");
@@ -139,8 +138,8 @@ public class CalculatorApp {
 		Button button11 = new Button(shell, SWT.NONE);
 		button11.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				remover.clear();
-				text.setText(remover.inputExpression);
+				inputter.input.clear();
+				text.setText(inputter.input.inputExpression);
 			}
 		});
 		button11.setText("C");
@@ -180,9 +179,8 @@ public class CalculatorApp {
 		Button button15 = new Button(shell, SWT.NONE);
 		button15.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				remover.inputExpression = text.getText();
-				text.setText(Double.toString(remover.evaluate()));
-				remover.clear();
+				text.setText(inputter.input.evaluate());
+				inputter.input.clear();
 			}
 		});
 		button15.setText("=");
@@ -192,8 +190,8 @@ public class CalculatorApp {
 		Button button16 = new Button(shell, SWT.NONE);
 		button16.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				remover.backspace();
-				text.setText(remover.inputExpression);
+				inputter.input.backspace();
+				text.setText(inputter.input.inputExpression);
 			}
 		});
 		button16.setText("BCK");

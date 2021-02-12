@@ -22,7 +22,7 @@ public class CalculatorLogic {
 	}
 	
 	public void clear() {
-		this.inputExpression = "";
+		inputExpression = "";
 	}
 	
 	public InputType type(char value) { //determine the type of character
@@ -39,8 +39,8 @@ public class CalculatorLogic {
 		}
 	}
 	
-	public double evaluate() {		
-		inputExpression += " "; //add a space to the end of the input expression to prevent an outofbounds error
+	public String evaluate() {		
+		inputExpression = "0+" + inputExpression + " "; //add a space to the end of the input expression to prevent an outofbounds error
 		
 		ArrayList<Double> values = new ArrayList<Double>(3); //store all the numbers
 		ArrayList<Character> operators = new ArrayList<Character>(1); //store the operators
@@ -63,6 +63,10 @@ public class CalculatorLogic {
 				}
 				break;
 			case OPERATOR:
+				if (type(inputExpression.charAt(i-1)) != InputType.DIGIT) {
+					return "Improper syntax";
+				}
+				
 				operators.add(digitOrLetter); //add the operator to the arrayList
 				
 				if (digitOrLetter == '*' || digitOrLetter == '/') { //add the priority of the operator to the parallel arrayList
@@ -82,6 +86,16 @@ public class CalculatorLogic {
 				}
 				break;
 			case OPENINGBRACKET:
+				if (type(inputExpression.charAt(i-1)) != InputType.OPERATOR) {
+					operators.add('*');
+					
+					operatorPriorities.add(bracketLevel * 3 + 1);
+					
+					if (bracketLevel * 3 + 1 > maxPriority) {
+						maxPriority++;
+					}
+				}
+				
 				bracketLevel++;
 				
 				if (bracketLevel * 3 > maxPriority) {
@@ -89,7 +103,24 @@ public class CalculatorLogic {
 				}
 				break;
 			case CLOSINGBRACKET:
+				if (type(inputExpression.charAt(i-1)) != InputType.DIGIT) {
+					return "Improper syntax";
+				}
+				
 				bracketLevel--;
+				
+				if (type(inputExpression.charAt(i+1)) == InputType.DIGIT) {
+					operators.add('*');
+					
+					operatorPriorities.add(bracketLevel * 3 + 1);
+					
+					if (bracketLevel * 3 + 1 > maxPriority) {
+						maxPriority++;
+					}
+					
+					System.out.println("check");
+				}
+				
 				break;
 			case SPACE:
 				break;
@@ -119,7 +150,11 @@ public class CalculatorLogic {
 						simpleValue = value1 * value2;
 						break;
 					case '/':
-						simpleValue = value1 / value2;
+						if (value2 != 0) {
+							simpleValue = value1 / value2;
+						} else {
+							return "Cannot divide by 0";
+						}
 						break;
 					case '^':
 						simpleValue = Math.pow(value1, value2);
@@ -139,7 +174,7 @@ public class CalculatorLogic {
 			}
 		}
 		
-		return values.get(0);
+		return Double.toString(values.get(0));
 	}
 }
 
