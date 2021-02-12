@@ -15,6 +15,16 @@ public class CalculatorLogic {
 		inputExpression += value; //concatenate the digit with the expression
 	}
 	
+	public void backspace() {
+		if (inputExpression.length() > 0) {
+			inputExpression = inputExpression.substring(0, inputExpression.length()-1);
+		}
+	}
+	
+	public void clear() {
+		this.inputExpression = "";
+	}
+	
 	public InputType type(char value) { //determine the type of character
 		if (Character.isDigit(value) || value == '.') {
 			return InputType.DIGIT;
@@ -61,6 +71,12 @@ public class CalculatorLogic {
 					if (bracketLevel * 3 + 1 > maxPriority) {
 						maxPriority++;
 					}
+				} else if (digitOrLetter == '^'){
+					operatorPriorities.add(bracketLevel * 3 + 2);
+					
+					if (bracketLevel * 3 + 1 > maxPriority) {
+						maxPriority += 2;
+					}
 				} else {
 					operatorPriorities.add(bracketLevel * 3);
 				}
@@ -104,6 +120,9 @@ public class CalculatorLogic {
 						break;
 					case '/':
 						simpleValue = value1 / value2;
+						break;
+					case '^':
+						simpleValue = Math.pow(value1, value2);
 						break;
 					default:
 						simpleValue = 0;
