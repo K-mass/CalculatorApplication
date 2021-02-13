@@ -3,6 +3,7 @@ import java.util.ArrayList;
 enum InputType { //types of inputs
 	OPERATOR,
 	DIGIT,
+	DECIMAL,
 	OPENINGBRACKET,
 	CLOSINGBRACKET,
 	SPACE
@@ -26,8 +27,10 @@ public class CalculatorLogic {
 	}
 	
 	public InputType type(char value) { //determine the type of character
-		if (Character.isDigit(value) || value == '.') {
+		if (Character.isDigit(value)) {
 			return InputType.DIGIT;
+		} else if (value == '.') {
+			return InputType.DECIMAL;
 		} else if (value == '(') {
 			return InputType.OPENINGBRACKET;
 		} else if (value == ')') {
@@ -60,6 +63,13 @@ public class CalculatorLogic {
 				if (type(inputExpression.charAt(i+1)) != InputType.DIGIT) { //if the next value isn't a digit, add the number to the arrayList
 					values.add(Double.parseDouble(tempValue));
 					tempValue = "";
+				}
+				break;
+			case DECIMAL:
+				tempValue += digitOrLetter; //add the digit to the temporary value
+				
+				if (type(inputExpression.charAt(i+1)) != InputType.DIGIT || type(inputExpression.charAt(i-1)) != InputType.DIGIT) { //if the next value isn't a digit, add the number to the arrayList
+					return "Improper syntax";
 				}
 				break;
 			case OPERATOR:

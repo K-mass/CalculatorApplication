@@ -27,7 +27,7 @@ public class CalculatorApp {
 		Display display = Display.getDefault();
 		Shell shell = new Shell();
 		shell.setSize(333, 388);
-		shell.setText("Calculator");
+		shell.setText("Colin's Calculator");
 		
 		text = new Text(shell, SWT.BORDER);
 		text.setFont(SWTResourceManager.getFont("Arial", 18, SWT.BOLD));
