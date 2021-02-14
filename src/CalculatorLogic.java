@@ -42,7 +42,7 @@ public class CalculatorLogic {
 		}
 	}
 	
-	public String evaluate() {		
+	public String evaluate() {
 		inputExpression = "0+" + inputExpression + " "; //add a space to the end of the input expression to prevent an outofbounds error
 		
 		ArrayList<Double> values = new ArrayList<Double>(3); //store all the numbers
@@ -60,7 +60,7 @@ public class CalculatorLogic {
 			case DIGIT:
 				tempValue += digitOrLetter; //add the digit to the temporary value
 				
-				if (type(inputExpression.charAt(i+1)) != InputType.DIGIT) { //if the next value isn't a digit, add the number to the arrayList
+				if (type(inputExpression.charAt(i+1)) != InputType.DIGIT && type(inputExpression.charAt(i+1)) != InputType.DECIMAL) { //if the next value isn't a digit, add the number to the arrayList
 					values.add(Double.parseDouble(tempValue));
 					tempValue = "";
 				}
@@ -68,7 +68,7 @@ public class CalculatorLogic {
 			case DECIMAL:
 				tempValue += digitOrLetter; //add the digit to the temporary value
 				
-				if (type(inputExpression.charAt(i+1)) != InputType.DIGIT || type(inputExpression.charAt(i-1)) != InputType.DIGIT) { //if the next value isn't a digit, add the number to the arrayList
+				if (type(inputExpression.charAt(i+1)) != InputType.DIGIT) { //if the next value isn't a digit, add the number to the arrayList
 					return "Improper syntax";
 				}
 				break;
@@ -140,10 +140,12 @@ public class CalculatorLogic {
 		for (int i = maxPriority; i >= 0; i--) { //iterate through the expression in order of priority
 			boolean loopedThrough = false;
 			
+			int index = 0;
+			
 			while (loopedThrough == false) { //iterate through all the operators of a certain priority
 				try {
-					int index = operatorPriorities.indexOf(i); //determine the index of the operator being processed
-					
+					for (; operatorPriorities.get(index) != i; index++); //determine the index of the operator being processed
+								
 					double value1 = values.get(index);
 					double value2 = values.get(index + 1);
 					
@@ -176,6 +178,7 @@ public class CalculatorLogic {
 					
 					values.remove(index + 1);
 					operators.remove(index);
+					operatorPriorities.remove(index);
 					
 					values.set(index, simpleValue);
 				} catch (Exception e) {
