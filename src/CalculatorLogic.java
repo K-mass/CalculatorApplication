@@ -11,6 +11,7 @@ enum InputType { //types of inputs
 
 public class CalculatorLogic {
 	String inputExpression = ""; //string that stores the expression that the user inputs
+	int currentIndex = 0;
 	
 	public void buttonPress(char value) {
 		inputExpression += value; //concatenate the digit with the expression
@@ -188,6 +189,133 @@ public class CalculatorLogic {
 		}
 		
 		return Double.toString(values.get(0));
+	}
+
+/*** Recursive algorithm for evaluating an expression ***/
+/*
+ * This algorithm uses recursive descent
+ * 
+ * We divide an string representing a mathematical expression into 3 different components, ranked in order of priority.
+ * 1) Term: A component representing the highest priority of operation (brackets, exponent, sin, cos, tan etc)
+ * 		Term = Number|+Term|-Term|Term^Term|(Expression)
+ * 2) Factor: Consists of products or quotients of Terms or Factors
+ * 		Factor = Factor|Term *|/ Factor|Term
+ * 3) Expression: Consists of the sum or difference of Factors or Expressions
+ * 		Expression = Expression|Factor +|- Expression|Factor
+ * 
+ * Based on these 3 tiers of components, we can create a recursive algorithm involves 3 functions.
+ * One function for evaluating a Term, one for evaluating a Factor, and one for evaluating an Expression.
+ * These functions will recursively call each other in order to first evaluate components of higher priority.
+ * The evaluate Expression function will call the evaluate Factor function, which will call the evaluate Term function, which may in turn call the evaluate Expression function again.
+ * This recursive calling of functions will continue until the base case is reached, which is simply the evaluation of a single integer or exponent.
+ * Then the results are propagated up the stack of recursive function calls to build up the overall solution.
+ * 
+ * 
+ */
+	// First function in the recursive algorithm. This function gets called first, starting the recursive chain, and will in turn call the second.
+	// Calling this function first ensures it in at the bottom of the recursive function stack, so that the addition/subtraction will be performed last
+	private double evaluateExpression() {
+		// evaluate the first Factor
+		double result = evaluateFactor();
+		
+		// Lowest priority operations, addition and subtraction
+		while (currentIndex < inputExpression.length()) {
+			// accumulate the sum/difference of Factors while there are still +/- operators
+			if (inputExpression.charAt(currentIndex) == '+') {
+				currentIndex++;
+				result = result + evaluateFactor();
+			}
+			else if (inputExpression.charAt(currentIndex) == '-') {
+				currentIndex++;
+				result = result - evaluateFactor();
+			}
+			else {
+				// return the result when there are no more operators
+				return result;
+			}
+		}
+		
+		// throw exception if the last character in the expression is an operator
+		throw new RuntimeException("Invalid Expression");
+	}
+	
+	// Second function in the recursive algorithm. This function gets called by the first function and will in turn call the third function.
+	// Calling this function second in the recursive chain puts it above the first function in the stack, ensuring the multiplication/division will be performed before subtraction/division in the first function
+	private double evaluateFactor() {
+		double result = evaluateTerm();
+		
+		// Medium priority operations, multiplication and division
+		while (currentIndex < inputExpression.length()) {
+			// accumulate the product/quotient of Terms while there are still * / operators
+			if (inputExpression.charAt(currentIndex) == '*') {
+				currentIndex++;
+				result = result * evaluateTerm();
+			}
+			else if (inputExpression.charAt(currentIndex) == '/') {
+				currentIndex++;
+				result = result / evaluateTerm();
+			}
+			else {
+				//return the result when there are no more operators
+				return result;
+			}
+		}
+		
+		// throw exception if the last character in the expression is an operator
+		throw new RuntimeException("Invalid Expression");
+	}
+	
+	// Third function in the recursive algorithm. This function gets called by the second function and will either call itself or the first function (starting the evaluation of an expression within the expression)
+	// Calling this function last in the recursive chain puts it above the other functions in the stack, ensuring the highest priority operations are performed first
+	// This function also handles the base case, where the part of the expression is simply a number or signed number
+	private double evaluateTerm() {
+		double result;
+		
+		// positive number
+		if (inputExpression.charAt(currentIndex) == '+') {
+			currentIndex++;
+			result = evaluateTerm();
+		}
+		// negative number
+		else if (inputExpression.charAt(currentIndex) == '-') {
+			currentIndex++;
+			result = -evaluateTerm();
+		}
+		// opening bracket, starts the evaluation of a new expression (calls the first function again)
+		else if (type(inputExpression.charAt(currentIndex)) == InputType.OPENINGBRACKET) {
+			currentIndex++;
+			result = evaluateExpression();
+			// handle the closing bracket and throw exception if no closing bracket found
+			if (type(inputExpression.charAt(currentIndex)) == InputType.CLOSINGBRACKET) {
+				currentIndex++;
+			}
+			else {
+				throw new RuntimeException("Invalid Expression");
+			}
+		}
+		// number
+		else if (type(inputExpression.charAt(currentIndex)) == InputType.DIGIT || type(inputExpression.charAt(currentIndex)) == InputType.DECIMAL) {
+			int startIndex = currentIndex;
+			// get the number by using the starting and ending index of the number in the expression string
+			while (type(inputExpression.charAt(currentIndex)) == InputType.DIGIT || type(inputExpression.charAt(currentIndex)) == InputType.DECIMAL) {
+				currentIndex++;
+				if (currentIndex > inputExpression.length()) {
+					break;
+				}
+			}
+			result = Double.parseDouble(inputExpression.substring(startIndex, currentIndex));
+		}
+		else {
+			throw new RuntimeException("Invalid Expression");
+		}
+		
+		// handle exponent case
+		if (inputExpression.charAt(currentIndex) == '^') {
+			currentIndex++;
+			result = Math.pow(result, evaluateTerm());
+		}
+		
+		return result;
 	}
 }
 
