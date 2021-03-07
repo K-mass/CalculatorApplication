@@ -1,4 +1,5 @@
-import java.util.ArrayList;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 enum InputType { //types of inputs
 	OPERATOR,
@@ -6,14 +7,15 @@ enum InputType { //types of inputs
 	DECIMAL,
 	OPENINGBRACKET,
 	CLOSINGBRACKET,
-	SPACE
+	MODIFIER
 }
 
 public class CalculatorLogic {
+	
 	String inputExpression = ""; //string that stores the expression that the user inputs
 	int currentIndex = 0;
 	
-	public void buttonPress(char value) {
+	public void buttonPress(String value) {
 		inputExpression += value; //concatenate the digit with the expression
 	}
 	
@@ -27,7 +29,7 @@ public class CalculatorLogic {
 		inputExpression = "";
 	}
 	
-	public InputType type(char value) { //determine the type of character
+	private InputType type(char value) { //determine the type of character
 		if (Character.isDigit(value)) {
 			return InputType.DIGIT;
 		} else if (value == '.') {
@@ -36,13 +38,26 @@ public class CalculatorLogic {
 			return InputType.OPENINGBRACKET;
 		} else if (value == ')') {
 			return InputType.CLOSINGBRACKET;
-		} else if (value == ' ') {
-			return InputType.SPACE;
+		} else if (value == '-' ||  value == 's' || value == '+' || value == 'l' || value == 'c' || value == 't'){
+			return InputType.MODIFIER;
 		} else {
 			return InputType.OPERATOR;
 		}
 	}
 	
+	public double evaluate() { return evaluateExpression(); }
+	
+	private void operatorCheck() {
+		try {
+			if (type(inputExpression.charAt(currentIndex)) == InputType.OPERATOR) {
+				throw new InvalidExpressionException("Improper syntax");
+			}
+		} catch (StringIndexOutOfBoundsException e) {
+			throw new InvalidExpressionException("Improper syntax");
+		}
+	}
+	
+	/*
 	public String evaluate() {
 		inputExpression = "0+" + inputExpression + " "; //add a space to the end of the input expression to prevent an outofbounds error
 		
@@ -190,6 +205,7 @@ public class CalculatorLogic {
 		
 		return Double.toString(values.get(0));
 	}
+	*/
 
 /*** Recursive algorithm for evaluating an expression ***/
 /*
@@ -223,20 +239,33 @@ public class CalculatorLogic {
 			// accumulate the sum/difference of Factors while there are still +/- operators
 			if (inputExpression.charAt(currentIndex) == '+') {
 				currentIndex++;
+				
+				operatorCheck();
+				
 				result = result + evaluateFactor();
 			}
 			else if (inputExpression.charAt(currentIndex) == '-') {
 				currentIndex++;
+				
+				operatorCheck();
+				
 				result = result - evaluateFactor();
 			}
 			else {
 				// return the result when there are no more operators
-				return result;
+				if (String.valueOf(result) != "Infinity") {
+					return BigDecimal.valueOf(result).setScale(15, RoundingMode.HALF_UP).doubleValue();
+				} else {
+					throw new InvalidExpressionException("Result too large");
+				}
 			}
 		}
 		
-		// throw exception if the last character in the expression is an operator
-		throw new RuntimeException("Invalid Expression");
+		if (String.valueOf(result) != "Infinity") {
+			return BigDecimal.valueOf(result).setScale(15, RoundingMode.HALF_UP).doubleValue();
+		} else {
+			throw new InvalidExpressionException("Result too large");
+		}
 	}
 	
 	// Second function in the recursive algorithm. This function gets called by the first function and will in turn call the third function.
@@ -249,11 +278,21 @@ public class CalculatorLogic {
 			// accumulate the product/quotient of Terms while there are still * / operators
 			if (inputExpression.charAt(currentIndex) == '*') {
 				currentIndex++;
+				
+				operatorCheck();
+				
 				result = result * evaluateTerm();
 			}
 			else if (inputExpression.charAt(currentIndex) == '/') {
 				currentIndex++;
-				result = result / evaluateTerm();
+				
+				operatorCheck();
+				
+				if (inputExpression.charAt(currentIndex) != '0') {
+					result = result / evaluateTerm();
+				} else {
+					throw new InvalidExpressionException("Cannot divide by zero");
+				}
 			}
 			else {
 				//return the result when there are no more operators
@@ -261,8 +300,7 @@ public class CalculatorLogic {
 			}
 		}
 		
-		// throw exception if the last character in the expression is an operator
-		throw new RuntimeException("Invalid Expression");
+		return result;
 	}
 	
 	// Third function in the recursive algorithm. This function gets called by the second function and will either call itself or the first function (starting the evaluation of an expression within the expression)
@@ -274,45 +312,180 @@ public class CalculatorLogic {
 		// positive number
 		if (inputExpression.charAt(currentIndex) == '+') {
 			currentIndex++;
+			
+			operatorCheck();
+			
 			result = evaluateTerm();
 		}
 		// negative number
 		else if (inputExpression.charAt(currentIndex) == '-') {
 			currentIndex++;
+			
+			operatorCheck();
+			
 			result = -evaluateTerm();
+		}
+		else if (currentIndex + 3 < inputExpression.length() && inputExpression.substring(currentIndex, currentIndex + 3).equals("sin")) {
+			currentIndex += 3;
+			
+			System.out.println("here");
+			
+			if (currentIndex + 2 < inputExpression.length() && (inputExpression.substring(currentIndex, currentIndex + 2).equals("-1"))) {
+				System.out.println("bigpp");
+				
+				operatorCheck();
+				
+				result = Math.asin(evaluateTerm());
+			} else {
+				if (currentIndex + 1 < inputExpression.length() && inputExpression.substring(currentIndex, currentIndex + 1).equals("'")) {
+					currentIndex += 1;
+					
+					System.out.println("xxx");
+					
+					operatorCheck();
+					
+					result = Math.sin(Math.toRadians(evaluateTerm()));
+				} else {
+					operatorCheck();
+					
+					result = Math.sin(evaluateTerm());
+				}
+			}
+		}
+		else if (currentIndex + 3 < inputExpression.length() && inputExpression.substring(currentIndex, currentIndex + 3).equals("cos")) {
+			currentIndex += 3;
+			
+			if (currentIndex + 2 < inputExpression.length() && !inputExpression.substring(currentIndex, currentIndex + 2).equals("-1")) {
+				if (currentIndex + 1 < inputExpression.length() && inputExpression.substring(currentIndex, currentIndex + 1).equals("'")) {
+					currentIndex += 1;
+					
+					operatorCheck();
+					
+					result = Math.cos(Math.toRadians(evaluateTerm()));
+				} else {
+					operatorCheck();
+					
+					result = Math.cos(evaluateTerm());
+				}
+			} else {
+				operatorCheck();
+				
+				result = Math.acos(evaluateTerm());
+			}
+		}
+		else if (currentIndex + 3 < inputExpression.length() && inputExpression.substring(currentIndex, currentIndex + 3).equals("tan")) {
+			currentIndex += 3;
+			
+			if (currentIndex + 2 < inputExpression.length() && !inputExpression.substring(currentIndex, currentIndex + 2).equals("-1")) {
+				if (currentIndex + 1 < inputExpression.length() && inputExpression.substring(currentIndex, currentIndex + 1).equals("'")) {
+					currentIndex += 1;
+					
+					operatorCheck();
+					
+					result = Math.tan(Math.toRadians(evaluateTerm()));
+				} else {
+					operatorCheck();
+					
+					result = Math.tan(evaluateTerm());
+				}
+			} else {
+				operatorCheck();
+				
+				result = Math.atan(evaluateTerm());
+			}
+		}
+		else if (currentIndex + 3 < inputExpression.length() && inputExpression.substring(currentIndex, currentIndex + 3).equals("log")) {
+			currentIndex += 3;
+			
+			operatorCheck();
+			
+			result = Math.log10(evaluateTerm());
+		}
+		else if (currentIndex + 2 < inputExpression.length() && inputExpression.substring(currentIndex, currentIndex + 2).equals("ln")) {
+			currentIndex += 2;
+			
+			operatorCheck();
+			
+			result = Math.log(evaluateTerm());
+		}
+		else if (currentIndex + 4 < inputExpression.length() && inputExpression.substring(currentIndex, currentIndex + 4).equals("sqrt")) {
+			currentIndex += 4;
+			
+			operatorCheck();
+			
+			result = Math.sqrt(evaluateTerm());
 		}
 		// opening bracket, starts the evaluation of a new expression (calls the first function again)
 		else if (type(inputExpression.charAt(currentIndex)) == InputType.OPENINGBRACKET) {
 			currentIndex++;
+			
+			operatorCheck();
+			
 			result = evaluateExpression();
 			// handle the closing bracket and throw exception if no closing bracket found
 			if (type(inputExpression.charAt(currentIndex)) == InputType.CLOSINGBRACKET) {
 				currentIndex++;
+				
+				if (currentIndex < inputExpression.length()) {
+					if (type(inputExpression.charAt(currentIndex)) == InputType.OPENINGBRACKET
+					|| type(inputExpression.charAt(currentIndex)) == InputType.DIGIT
+					|| type(inputExpression.charAt(currentIndex)) == InputType.MODIFIER
+					&& !(inputExpression.charAt(currentIndex) == '-' || inputExpression.charAt(currentIndex) == '+')) {
+						inputExpression = inputExpression.substring(0, currentIndex) + "*" + inputExpression.substring(currentIndex);
+					}
+				}
+				
+				return result;
 			}
 			else {
-				throw new RuntimeException("Invalid Expression");
+				throw new InvalidExpressionException("No closing bracket found");
 			}
 		}
 		// number
 		else if (type(inputExpression.charAt(currentIndex)) == InputType.DIGIT || type(inputExpression.charAt(currentIndex)) == InputType.DECIMAL) {
 			int startIndex = currentIndex;
+			
 			// get the number by using the starting and ending index of the number in the expression string
-			while (type(inputExpression.charAt(currentIndex)) == InputType.DIGIT || type(inputExpression.charAt(currentIndex)) == InputType.DECIMAL) {
-				currentIndex++;
-				if (currentIndex > inputExpression.length()) {
-					break;
+			try {
+				while (type(inputExpression.charAt(currentIndex)) == InputType.DIGIT || type(inputExpression.charAt(currentIndex)) == InputType.DECIMAL) {
+					if (currentIndex < inputExpression.length() - 1) {
+						currentIndex++;
+					} else {
+						currentIndex++;
+						
+						result = Double.parseDouble(inputExpression.substring(startIndex, currentIndex));
+						return result;
+					}
 				}
+				result = Double.parseDouble(inputExpression.substring(startIndex, currentIndex));
+			} catch (NumberFormatException e) {
+				throw new InvalidExpressionException("Improper number format");
 			}
-			result = Double.parseDouble(inputExpression.substring(startIndex, currentIndex));
+			if (type(inputExpression.charAt(currentIndex)) == InputType.OPENINGBRACKET
+			|| type(inputExpression.charAt(currentIndex)) == InputType.DIGIT
+			|| type(inputExpression.charAt(currentIndex)) == InputType.MODIFIER
+			&& !(inputExpression.charAt(currentIndex) == '-' || inputExpression.charAt(currentIndex) == '+')) {
+				inputExpression = inputExpression.substring(0, currentIndex) + "*" + inputExpression.substring(currentIndex);
+			}
 		}
 		else {
-			throw new RuntimeException("Invalid Expression");
+			throw new InvalidExpressionException("Improper syntax");
 		}
 		
 		// handle exponent case
-		if (inputExpression.charAt(currentIndex) == '^') {
+		if (currentIndex + 1 < inputExpression.length() && inputExpression.charAt(currentIndex) == '^') {
 			currentIndex++;
+			
+			operatorCheck();
+			
 			result = Math.pow(result, evaluateTerm());
+		}
+		else if (currentIndex + 4 < inputExpression.length() && inputExpression.substring(currentIndex, currentIndex + 4).equals("root")) {
+			currentIndex += 4;
+			
+			operatorCheck();
+			
+			result = Math.pow(evaluateTerm(), 1.0/result);
 		}
 		
 		return result;
