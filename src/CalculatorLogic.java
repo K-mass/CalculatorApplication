@@ -48,11 +48,11 @@ public class CalculatorLogic {
 	public double evaluate() { return evaluateExpression(); }
 	
 	private void operatorCheck() {
-		try {
+		if (currentIndex < inputExpression.length()) {
 			if (type(inputExpression.charAt(currentIndex)) == InputType.OPERATOR) {
 				throw new InvalidExpressionException("Improper syntax");
 			}
-		} catch (StringIndexOutOfBoundsException e) {
+		} else {
 			throw new InvalidExpressionException("Improper syntax");
 		}
 	}
@@ -447,7 +447,7 @@ public class CalculatorLogic {
 			
 			result = evaluateExpression();
 			// handle the closing bracket and throw exception if no closing bracket found
-			if (type(inputExpression.charAt(currentIndex)) == InputType.CLOSINGBRACKET) {
+			if (currentIndex < inputExpression.length() && type(inputExpression.charAt(currentIndex)) == InputType.CLOSINGBRACKET) {
 				currentIndex++;
 				
 				if (currentIndex < inputExpression.length()) {
@@ -472,7 +472,7 @@ public class CalculatorLogic {
 			// get the number by using the starting and ending index of the number in the expression string
 			try {
 				while (type(inputExpression.charAt(currentIndex)) == InputType.DIGIT || type(inputExpression.charAt(currentIndex)) == InputType.DECIMAL) {
-					if (currentIndex < inputExpression.length() - 1) {
+					if (currentIndex + 1 < inputExpression.length()) {
 						currentIndex++;
 					} else {
 						currentIndex++;
