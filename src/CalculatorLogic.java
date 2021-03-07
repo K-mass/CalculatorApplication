@@ -253,18 +253,22 @@ public class CalculatorLogic {
 			}
 			else {
 				// return the result when there are no more operators
-				if (String.valueOf(result) != "Infinity") {
-					return BigDecimal.valueOf(result).setScale(15, RoundingMode.HALF_UP).doubleValue();
-				} else {
+				if (String.valueOf(result) == "Infinity") {
 					throw new InvalidExpressionException("Result too large");
+				} else if (String.valueOf(result) == "NaN") {
+					return result;
+				} else {
+					return BigDecimal.valueOf(result).setScale(15, RoundingMode.HALF_UP).doubleValue();
 				}
 			}
 		}
 		
-		if (String.valueOf(result) != "Infinity") {
-			return BigDecimal.valueOf(result).setScale(15, RoundingMode.HALF_UP).doubleValue();
-		} else {
+		if (String.valueOf(result) == "Infinity") {
 			throw new InvalidExpressionException("Result too large");
+		} else if (String.valueOf(result) == "NaN") {
+			return result;
+		} else {
+			return BigDecimal.valueOf(result).setScale(15, RoundingMode.HALF_UP).doubleValue();
 		}
 	}
 	
