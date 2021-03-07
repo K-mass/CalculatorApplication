@@ -328,19 +328,23 @@ public class CalculatorLogic {
 		else if (currentIndex + 3 < inputExpression.length() && inputExpression.substring(currentIndex, currentIndex + 3).equals("sin")) {
 			currentIndex += 3;
 			
-			System.out.println("here");
-			
 			if (currentIndex + 2 < inputExpression.length() && (inputExpression.substring(currentIndex, currentIndex + 2).equals("-1"))) {
-				System.out.println("bigpp");
+				currentIndex += 2;
 				
-				operatorCheck();
-				
-				result = Math.asin(evaluateTerm());
-			} else {
 				if (currentIndex + 1 < inputExpression.length() && inputExpression.substring(currentIndex, currentIndex + 1).equals("'")) {
 					currentIndex += 1;
 					
-					System.out.println("xxx");
+					operatorCheck();
+					
+					result = Math.toDegrees(Math.asin((evaluateTerm())));
+				} else {
+					operatorCheck();
+					
+					result = Math.asin(evaluateTerm());
+				}
+			} else {
+				if (currentIndex + 1 < inputExpression.length() && inputExpression.substring(currentIndex, currentIndex + 1).equals("'")) {
+					currentIndex += 1;
 					
 					operatorCheck();
 					
@@ -355,7 +359,21 @@ public class CalculatorLogic {
 		else if (currentIndex + 3 < inputExpression.length() && inputExpression.substring(currentIndex, currentIndex + 3).equals("cos")) {
 			currentIndex += 3;
 			
-			if (currentIndex + 2 < inputExpression.length() && !inputExpression.substring(currentIndex, currentIndex + 2).equals("-1")) {
+			if (currentIndex + 2 < inputExpression.length() && (inputExpression.substring(currentIndex, currentIndex + 2).equals("-1"))) {
+				currentIndex += 2;
+				
+				if (currentIndex + 1 < inputExpression.length() && inputExpression.substring(currentIndex, currentIndex + 1).equals("'")) {
+					currentIndex += 1;
+					
+					operatorCheck();
+					
+					result = Math.toDegrees(Math.acos((evaluateTerm())));
+				} else {
+					operatorCheck();
+					
+					result = Math.acos(evaluateTerm());
+				}
+			} else {
 				if (currentIndex + 1 < inputExpression.length() && inputExpression.substring(currentIndex, currentIndex + 1).equals("'")) {
 					currentIndex += 1;
 					
@@ -367,16 +385,26 @@ public class CalculatorLogic {
 					
 					result = Math.cos(evaluateTerm());
 				}
-			} else {
-				operatorCheck();
-				
-				result = Math.acos(evaluateTerm());
 			}
 		}
 		else if (currentIndex + 3 < inputExpression.length() && inputExpression.substring(currentIndex, currentIndex + 3).equals("tan")) {
 			currentIndex += 3;
 			
-			if (currentIndex + 2 < inputExpression.length() && !inputExpression.substring(currentIndex, currentIndex + 2).equals("-1")) {
+			if (currentIndex + 2 < inputExpression.length() && (inputExpression.substring(currentIndex, currentIndex + 2).equals("-1"))) {
+				currentIndex += 2;
+				
+				if (currentIndex + 1 < inputExpression.length() && inputExpression.substring(currentIndex, currentIndex + 1).equals("'")) {
+					currentIndex += 1;
+					
+					operatorCheck();
+					
+					result = Math.toDegrees(Math.atan((evaluateTerm())));
+				} else {
+					operatorCheck();
+					
+					result = Math.atan(evaluateTerm());
+				}
+			} else {
 				if (currentIndex + 1 < inputExpression.length() && inputExpression.substring(currentIndex, currentIndex + 1).equals("'")) {
 					currentIndex += 1;
 					
@@ -388,10 +416,6 @@ public class CalculatorLogic {
 					
 					result = Math.tan(evaluateTerm());
 				}
-			} else {
-				operatorCheck();
-				
-				result = Math.atan(evaluateTerm());
 			}
 		}
 		else if (currentIndex + 3 < inputExpression.length() && inputExpression.substring(currentIndex, currentIndex + 3).equals("log")) {

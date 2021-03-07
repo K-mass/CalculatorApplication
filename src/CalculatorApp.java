@@ -144,7 +144,11 @@ public class CalculatorApp {
 						inputter.press("sin(");
 					}
 				} else {
-					inputter.press("sin-1(");
+					if (inputter.degreeModeOn) {
+						inputter.press("sin-1'(");
+					} else {
+						inputter.press("sin-1(");
+					}
 				}
 			}
 		});
@@ -230,7 +234,11 @@ public class CalculatorApp {
 						inputter.press("cos(");
 					}
 				} else {
-					inputter.press("cos-1(");
+					if (inputter.degreeModeOn) {
+						inputter.press("cos-1'(");
+					} else {
+						inputter.press("cos-1(");
+					}
 				}
 			}
 		});
@@ -324,7 +332,11 @@ public class CalculatorApp {
 						inputter.press("tan(");
 					}
 				} else {
-					inputter.press("tan-1(");
+					if (inputter.degreeModeOn) {
+						inputter.press("tan-1'(");
+					} else {
+						inputter.press("tan-1(");
+					}
 				}
 			}
 		});
@@ -381,7 +393,7 @@ public class CalculatorApp {
 					button8.setText("Deg");
 					button9.setText("10^x");
 					button10.setText("sin-1");
-					button15.setText("rad");
+					button15.setText("Rad");
 					button16.setText("ln");
 					button17.setText("cos-1");
 					button24.setText("tan-1");
