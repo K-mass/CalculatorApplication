@@ -59,10 +59,10 @@ public class CalculatorLogic {
 	private void operatorCheck() {
 		if (currentIndex < inputExpression.length()) {
 			if (type(inputExpression.charAt(currentIndex)) == InputType.OPERATOR) {
-				throw new InvalidExpressionException("Improper syntax2");
+				throw new InvalidExpressionException("Improper syntax");
 			}
 		} else {
-			throw new InvalidExpressionException("Improper syntax3");
+			throw new InvalidExpressionException("Improper syntax");
 		}
 	}
 	
@@ -492,8 +492,6 @@ public class CalculatorLogic {
 					absOn = false;
 				}
 				
-				System.out.println("abs");
-				
 				if (currentIndex < inputExpression.length()) {
 					if (type(inputExpression.charAt(currentIndex)) == InputType.OPENINGBRACKET
 					|| type(inputExpression.charAt(currentIndex)) == InputType.OPENINGABS
@@ -539,9 +537,7 @@ public class CalculatorLogic {
 			}
 		}
 		else {
-			System.out.println("huge");
-			
-			throw new InvalidExpressionException("Improper syntax1");
+			throw new InvalidExpressionException("Improper syntax");
 		}
 		
 		// handle exponent case
