@@ -7,6 +7,8 @@ enum InputType { //types of inputs
 	DECIMAL,
 	OPENINGBRACKET,
 	CLOSINGBRACKET,
+	OPENINGABS,
+	CLOSINGABS,
 	MODIFIER
 }
 
@@ -14,6 +16,7 @@ public class CalculatorLogic {
 	
 	String inputExpression = ""; //string that stores the expression that the user inputs
 	int currentIndex = 0;
+	boolean absOn = false;
 	
 	public void buttonPress(String value) {
 		inputExpression += value; //concatenate the digit with the expression
@@ -27,6 +30,8 @@ public class CalculatorLogic {
 	
 	public void clear() {
 		inputExpression = "";
+		currentIndex = 0;
+		absOn = false;
 	}
 	
 	private InputType type(char value) { //determine the type of character
@@ -38,6 +43,10 @@ public class CalculatorLogic {
 			return InputType.OPENINGBRACKET;
 		} else if (value == ')') {
 			return InputType.CLOSINGBRACKET;
+		} else if (absOn == false && value == '|') {
+			return InputType.OPENINGABS;
+		} else if (absOn == true && value == '|') {
+			return InputType.CLOSINGABS;
 		} else if (value == '-' ||  value == 's' || value == '+' || value == 'l' || value == 'c' || value == 't'){
 			return InputType.MODIFIER;
 		} else {
@@ -50,10 +59,10 @@ public class CalculatorLogic {
 	private void operatorCheck() {
 		if (currentIndex < inputExpression.length()) {
 			if (type(inputExpression.charAt(currentIndex)) == InputType.OPERATOR) {
-				throw new InvalidExpressionException("Improper syntax");
+				throw new InvalidExpressionException("Improper syntax2");
 			}
 		} else {
-			throw new InvalidExpressionException("Improper syntax");
+			throw new InvalidExpressionException("Improper syntax3");
 		}
 	}
 	
@@ -444,18 +453,50 @@ public class CalculatorLogic {
 			result = Math.sqrt(evaluateTerm());
 		}
 		// opening bracket, starts the evaluation of a new expression (calls the first function again)
-		else if (type(inputExpression.charAt(currentIndex)) == InputType.OPENINGBRACKET) {
+		else if (type(inputExpression.charAt(currentIndex)) == InputType.OPENINGBRACKET || type(inputExpression.charAt(currentIndex)) == InputType.OPENINGABS) {
+			InputType startingBrckt = type(inputExpression.charAt(currentIndex));
+			
 			currentIndex++;
 			
 			operatorCheck();
 			
-			result = evaluateExpression();
+			boolean brcktDeclaredInAbs = false;
+			
+			if (startingBrckt == InputType.OPENINGBRACKET) {
+				if (absOn) {
+					brcktDeclaredInAbs = true;
+				}
+				
+				result = evaluateExpression();
+			} else {
+				absOn = true;
+				
+				result = Math.abs(evaluateExpression());
+			}
+			
 			// handle the closing bracket and throw exception if no closing bracket found
-			if (currentIndex < inputExpression.length() && type(inputExpression.charAt(currentIndex)) == InputType.CLOSINGBRACKET) {
+			if (currentIndex < inputExpression.length() &&
+				(startingBrckt == InputType.OPENINGBRACKET && type(inputExpression.charAt(currentIndex)) == InputType.CLOSINGBRACKET
+				|| startingBrckt == InputType.OPENINGABS && type(inputExpression.charAt(currentIndex)) == InputType.CLOSINGABS)) {
+				
 				currentIndex++;
+				
+				if (startingBrckt == InputType.OPENINGBRACKET) {
+					if (brcktDeclaredInAbs != absOn) {
+						brcktDeclaredInAbs = false;
+						throw new InvalidExpressionException("Invalid brackets");
+					}
+					
+					brcktDeclaredInAbs = false;
+				} else {
+					absOn = false;
+				}
+				
+				System.out.println("abs");
 				
 				if (currentIndex < inputExpression.length()) {
 					if (type(inputExpression.charAt(currentIndex)) == InputType.OPENINGBRACKET
+					|| type(inputExpression.charAt(currentIndex)) == InputType.OPENINGABS
 					|| type(inputExpression.charAt(currentIndex)) == InputType.DIGIT
 					|| type(inputExpression.charAt(currentIndex)) == InputType.MODIFIER
 					&& !(inputExpression.charAt(currentIndex) == '-' || inputExpression.charAt(currentIndex) == '+')) {
@@ -490,6 +531,7 @@ public class CalculatorLogic {
 				throw new InvalidExpressionException("Improper number format");
 			}
 			if (type(inputExpression.charAt(currentIndex)) == InputType.OPENINGBRACKET
+			|| type(inputExpression.charAt(currentIndex)) == InputType.OPENINGABS
 			|| type(inputExpression.charAt(currentIndex)) == InputType.DIGIT
 			|| type(inputExpression.charAt(currentIndex)) == InputType.MODIFIER
 			&& !(inputExpression.charAt(currentIndex) == '-' || inputExpression.charAt(currentIndex) == '+')) {
@@ -497,7 +539,9 @@ public class CalculatorLogic {
 			}
 		}
 		else {
-			throw new InvalidExpressionException("Improper syntax");
+			System.out.println("huge");
+			
+			throw new InvalidExpressionException("Improper syntax1");
 		}
 		
 		// handle exponent case

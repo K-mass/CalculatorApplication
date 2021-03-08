@@ -282,11 +282,9 @@ public class CalculatorApp {
 				if (inputter.input.inputExpression.length() > 0) {
 					try {
 						text.setText(Double.toString(inputter.input.evaluate()));
-						inputter.input.currentIndex = 0;
 						inputter.input.clear();
 					} catch (InvalidExpressionException ex) {
 						text.setText((ex.toString()).substring(28));
-						inputter.input.currentIndex = 0;
 						inputter.input.clear();
 					}
 				} else {
@@ -347,7 +345,11 @@ public class CalculatorApp {
 		Button button25 = new Button(shell, SWT.NONE);
 		button25.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				inputter.press("/");
+				if (!inputter.secondOn) {
+					inputter.press("/");
+				} else {
+					inputter.press("|");
+				}
 			}
 		});
 		button25.setText("/");
@@ -397,6 +399,7 @@ public class CalculatorApp {
 					button16.setText("ln");
 					button17.setText("cos-1");
 					button24.setText("tan-1");
+					button25.setText("|");
 					
 					button1.setText("1st");
 				} else {
@@ -409,6 +412,7 @@ public class CalculatorApp {
 					button16.setText("log");
 					button17.setText("cos");
 					button24.setText("tan");
+					button25.setText("/");
 					
 					button1.setText("2nd");
 				}
